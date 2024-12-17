@@ -21,24 +21,24 @@ package main
 import (
 	"context"
 	"flag"
+	"log"
 
 	"strconv"
 	"time"
 
-	ds "github.com/mkrainbow/rtio/internal/devicehub/client/devicesession"
-	"github.com/mkrainbow/rtio/pkg/logsettings"
-
-	"github.com/rs/zerolog/log"
+	"github.com/mkrainbow/rtio-device-sdk-go/rtio"
 )
 
 func handler(ctx context.Context, req []byte) (<-chan []byte, error) {
-	log.Info().Str("req", string(req)).Msg("")
+
+	log.Printf("received [%s] and reply [world! *]", string(req))
+
 	respChan := make(chan []byte, 1)
 	go func(context.Context, <-chan []byte) {
 
 		defer func() {
 			close(respChan)
-			log.Info().Msg("Observer exit")
+			log.Println("Observer exit")
 		}()
 		t := time.NewTicker(time.Millisecond * 300)
 		defer t.Stop()
@@ -46,10 +46,10 @@ func handler(ctx context.Context, req []byte) (<-chan []byte, error) {
 		for {
 			select {
 			case <-ctx.Done():
-				log.Info().Msg("ctx.Done()")
+				log.Println("ctx.Done()")
 				return
 			case <-t.C:
-				log.Info().Msg("Notify")
+				log.Println("Notify")
 				respChan <- []byte("world! " + strconv.Itoa(i))
 				i++
 				if i >= 10 {
@@ -64,16 +64,15 @@ func handler(ctx context.Context, req []byte) (<-chan []byte, error) {
 
 func main() {
 
-	logsettings.Set("text", "info")
 	serverAddr := flag.String("server", "localhost:17017", "server address")
 	deviceID := flag.String("id", "cfa09baa-4913-4ad7-a936-3e26f9671b09", "deviceid")
 	deviceSecret := flag.String("secret", "mb6bgso4EChvyzA05thF9+wH", "devicesecret")
 	flag.Parse()
 
-	session, err := ds.Connect(context.Background(), *deviceID, *deviceSecret, *serverAddr)
+	session, err := rtio.Connect(context.Background(), *deviceID, *deviceSecret, *serverAddr)
 
 	if err != nil {
-		log.Error().Err(err).Msg("")
+		log.Printf("Connect error, err=%s", err.Error())
 	}
 
 	session.RegisterObGetHandler("/rainbow", handler)

@@ -24,19 +24,17 @@ import (
 	"log"
 	"time"
 
-	ds "github.com/mkrainbow/rtio/internal/devicehub/client/devicesession"
-	"github.com/mkrainbow/rtio/pkg/logsettings"
+	"github.com/mkrainbow/rtio-device-sdk-go/rtio"
 )
 
 func main() {
 
-	logsettings.Set("text", "info")
 	serverAddr := flag.String("server", "localhost:17017", "server address")
 	deviceID := flag.String("id", "cfa09baa-4913-4ad7-a936-3e26f9671b09", "deviceid")
 	deviceSecret := flag.String("secret", "mb6bgso4EChvyzA05thF9+wH", "devicesecret")
 	flag.Parse()
 
-	session, err := ds.Connect(context.Background(), *deviceID, *deviceSecret, *serverAddr)
+	session, err := rtio.Connect(context.Background(), *deviceID, *deviceSecret, *serverAddr)
 
 	if err != nil {
 		log.Println(err)
@@ -44,7 +42,7 @@ func main() {
 	}
 
 	session.RegisterPostHandler("/rainbow", func(req []byte) ([]byte, error) {
-		log.Printf("%s", string(req))
+		log.Printf("received [%s] and reply [world]", string(req))
 		return []byte("world"), nil
 
 	})

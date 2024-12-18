@@ -179,11 +179,11 @@ func main() {
    // ...
 
    // Connect to rtio service.
-   session, err := ds.Connect(context.Background(), *deviceID, *deviceSecret, *serverAddr)
+   session, err := rtio.Connect(context.Background(), *deviceID, *deviceSecret, *serverAddr)
 
    // Register handler for URI.
    session.RegisterPostHandler("/rainbow", func(req []byte) ([]byte, error) {
-      log.Printf("%s", string(req))
+      log.Printf("received [%s] and reply [world]", string(req))
       return []byte("world"), nil
    })
 

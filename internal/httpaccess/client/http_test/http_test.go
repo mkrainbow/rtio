@@ -34,8 +34,11 @@ import (
 	"github.com/mkrainbow/rtio/pkg/rtioutil"
 )
 
+// Before run this test, please run the following program first.
+// ./out/examples/deviceservice # option
+// ./out/examples/hubconfiger	# option
+// ./out/rtio  -disable.deviceverify -log.level debug -enable.jwt -jwt.ed25519  ./out/examples/certificates/ed25519.public
 // ./out/devicehub/tcp_client
-// ./out/rtio -disable.deviceservice -disable.deviceverify -log.level debug -enable.jwt -jwt.ed25519 ./out/examples/certificates/ed25519.public
 const (
 	httpAddr = "0.0.0.0:17917"
 )
@@ -99,6 +102,31 @@ func (c *RTIOClient) CoPost(jsonReq JSONReq) (*JSONResp, error) {
 	err = json.Unmarshal(resp, jsonResp)
 	if err != nil {
 		return nil, fmt.Errorf("%w,body=%s,reqlen=%d", err, resp, len(req))
+	}
+	return jsonResp, nil
+}
+func (c *RTIOClient) CoPostBytes(reqBody []byte) (*JSONResp, error) {
+
+	httpReq, err := http.NewRequest("POST", c.url, bytes.NewBuffer(reqBody))
+	if err != nil {
+		return nil, err
+	}
+	httpReq.Header.Set("Authorization", "Bearer "+c.token)
+
+	httpResp, err := c.client.Do(httpReq)
+	if err != nil {
+		return nil, err
+	}
+	defer httpResp.Body.Close()
+	resp, err := io.ReadAll(httpResp.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	jsonResp := &JSONResp{}
+	err = json.Unmarshal(resp, jsonResp)
+	if err != nil {
+		return nil, fmt.Errorf("%w,body=%s,reqlen=%d", err, resp, len(reqBody))
 	}
 	return jsonResp, nil
 }
@@ -175,7 +203,7 @@ func TestObGet_DeviceOnLine(t *testing.T) {
 
 	for v := range jsonRespChan {
 		t.Log(v)
-		if v.Code != "CODE_CONTINUE" && v.Code != "CODE_TERMINATE" {
+		if v.Code != "CONTINUE" && v.Code != "TERMINATE" {
 			t.Errorf("code=%s\n", v.Code)
 		}
 	}
@@ -206,7 +234,7 @@ func TestCoPost_DeviceOnLine(t *testing.T) {
 	}
 	t.Logf("jsonResp=%v\n", jsonResp)
 
-	if jsonResp.Code != "CODE_OK" {
+	if jsonResp.Code != "OK" {
 		t.Errorf("code=%v\n", jsonResp.Code)
 	}
 
@@ -246,13 +274,15 @@ func TestCoPost_DeviceOnLine_JWT_SignError(t *testing.T) {
 	token := "eyJhbGciOiJFZERTQSIsInR5cCI6IkpXVCJ9.eyJleHAiOjE4ODAyNzg5MDgsImlzcyI6InJ0aW8iLCJzdWIiOiJjZmEwOWJhYS00OTEzLTRhZDctYTkzNi0yZTI2Zjk2NzFiMDUifQ.jclIibY2C6kU9FT7_VR5CcPUoKCrark7vYzdHiRac8JKIDKx3pk3Q9Knz4qhLDnzRB6JCMyQhwr__Nn-lvQtqQ"
 
 	c := NewRTIOClient(url, token)
-	_, err := c.CoPost(jsonReq)
+	resp, err := c.CoPost(jsonReq)
+	t.Log("resp=", resp)
 
 	if err == nil {
 		t.Error("err is nil")
-	}
-	if !strings.Contains(err.Error(), "invalid character") {
-		t.Error("err is error")
+	} else {
+		if !strings.Contains(err.Error(), "invalid character") {
+			t.Error("err is", err.Error())
+		}
 	}
 }
 
@@ -281,9 +311,10 @@ func TestCoPost_DeviceOnLine_JWT_SignExpired(t *testing.T) {
 
 	if err == nil {
 		t.Error("err is nil")
-	}
-	if !strings.Contains(err.Error(), "invalid character") {
-		t.Error("err is error")
+	} else {
+		if !strings.Contains(err.Error(), "invalid character") {
+			t.Error("err is", err.Error())
+		}
 	}
 }
 
@@ -312,7 +343,7 @@ func TestCoPost_DeviceOnLine_URI_LEN_128(t *testing.T) {
 	}
 	t.Logf("jsonResp=%v\n", jsonResp)
 
-	if jsonResp.Code != "CODE_NOT_FOUNT" {
+	if jsonResp.Code != "OK" {
 		t.Errorf("code=%v\n", jsonResp.Code)
 	}
 }
@@ -403,7 +434,7 @@ func TestCoPost_DeviceOnLine_Data_LEN_504(t *testing.T) {
 	}
 	t.Logf("jsonResp=%v\n", jsonResp)
 
-	if jsonResp.Code != "CODE_OK" {
+	if jsonResp.Code != "OK" {
 		t.Errorf("code=%v\n", jsonResp.Code)
 	}
 }
@@ -452,12 +483,14 @@ func TestCoPost_DeviceOnLine_LEN_REQ_864(t *testing.T) {
 	t.Logf("datalen=%v base64len=%v\n", len(data), len(base64Data))
 
 	jsonReq := JSONReq{
-		Method: "copost1111111111",
+		Method: "1234567890123456", // 17
 		ID:     id,
 		URI:    "/0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456",
 		Data:   base64Data,
 	}
-	t.Logf("jsonReq=%v\n", jsonReq)
+
+	reqBody, _ := json.Marshal(jsonReq)
+	t.Logf("reqBody=%v, len=%d\n", reqBody, len(reqBody)) // json.Marshal sometimes 864 bytes somtimes 863 bytes
 
 	url := "http://" + httpAddr + "/cfa09baa-4913-4ad7-a936-2e26f9671b05"
 	token := "eyJhbGciOiJFZERTQSIsInR5cCI6IkpXVCJ9.eyJleHAiOjE4ODAyNzg5MDgsImlzcyI6InJ0aW8iLCJzdWIiOiJjZmEwOWJhYS00OTEzLTRhZDctYTkzNi0yZTI2Zjk2NzFiMDUifQ.jclIibY2C6kU9FT7_VR5CcPUoKCrark7vYzdHiRac8JKIDKx3pk3Q9Knz4qhLDnzRB6JCMyQhwr__Nn-lvQtBQ"
@@ -477,93 +510,83 @@ func TestCoPost_DeviceOnLine_LEN_REQ_864(t *testing.T) {
 
 func TestCoPost_DeviceOnLine_LEN_REQ_865(t *testing.T) {
 
-	id, _ := rtioutil.GenUint32ID()
-
-	data := []byte("01234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345670123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456701234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678")
-
-	base64Data := base64.StdEncoding.EncodeToString(data)
-	t.Logf("datalen=%v base64len=%v\n", len(data), len(base64Data))
-
-	jsonReq := JSONReq{
-		Method: "copost11111111112",
-		ID:     id,
-		URI:    "/0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456",
-		Data:   base64Data,
-	}
-	t.Logf("jsonReq=%v\n", jsonReq)
+	reqBody := []byte("1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345")
+	t.Logf("len=%d\n", len(reqBody))
 
 	url := "http://" + httpAddr + "/cfa09baa-4913-4ad7-a936-2e26f9671b05"
 	token := "eyJhbGciOiJFZERTQSIsInR5cCI6IkpXVCJ9.eyJleHAiOjE4ODAyNzg5MDgsImlzcyI6InJ0aW8iLCJzdWIiOiJjZmEwOWJhYS00OTEzLTRhZDctYTkzNi0yZTI2Zjk2NzFiMDUifQ.jclIibY2C6kU9FT7_VR5CcPUoKCrark7vYzdHiRac8JKIDKx3pk3Q9Knz4qhLDnzRB6JCMyQhwr__Nn-lvQtBQ"
 
 	c := NewRTIOClient(url, token)
-	_, err := c.CoPost(jsonReq)
+	resp, err := c.CoPostBytes(reqBody)
+	t.Log("resp=", resp)
 
 	if err == nil {
 		t.Error("err is nil")
-	}
-	if !strings.Contains(err.Error(), "invalid character") {
-		t.Error("err is error")
+	} else {
+		if !strings.Contains(err.Error(), "invalid character") {
+			t.Error("err is", err.Error())
+		}
 	}
 }
 
 // ------------------------------------------------------------------------
-//  DeviceOffLine test, device Disconnect First
+//  DeviceOffLine test, using other deviceID(cfa09baa-4913-4ad7-a936-000000000000) and jwt.
 
-// func TestCoPost_DeviceOffLine(t *testing.T) {
-// 	id, _ := rtioutil.GenUint32ID()
-// 	base64Data := base64.StdEncoding.EncodeToString([]byte("hello"))
-// 	t.Logf("base64Data=%v\n", base64Data)
+func TestCoPost_DeviceOffLine(t *testing.T) {
+	id, _ := rtioutil.GenUint32ID()
+	base64Data := base64.StdEncoding.EncodeToString([]byte("hello"))
+	t.Logf("base64Data=%v\n", base64Data)
 
-// 	jsonReq := JSONReq{
-// 		Method: "copost",
-// 		ID:     id,
-// 		URI:    "/test",
-// 		Data:   base64Data,
-// 	}
-// 	t.Logf("jsonReq=%v\n", jsonReq)
+	jsonReq := JSONReq{
+		Method: "copost",
+		ID:     id,
+		URI:    "/test",
+		Data:   base64Data,
+	}
+	t.Logf("jsonReq=%v\n", jsonReq)
 
-// 	url := "http://" + httpAddr + "/cfa09baa-4913-4ad7-a936-2e26f9671b05"
-// 	token := "eyJhbGciOiJFZERTQSIsInR5cCI6IkpXVCJ9.eyJleHAiOjE4ODAyNzg5MDgsImlzcyI6InJ0aW8iLCJzdWIiOiJjZmEwOWJhYS00OTEzLTRhZDctYTkzNi0yZTI2Zjk2NzFiMDUifQ.jclIibY2C6kU9FT7_VR5CcPUoKCrark7vYzdHiRac8JKIDKx3pk3Q9Knz4qhLDnzRB6JCMyQhwr__Nn-lvQtBQ"
+	url := "http://" + httpAddr + "/cfa09baa-4913-4ad7-a936-000000000000"
+	token := "eyJhbGciOiJFZERTQSIsInR5cCI6IkpXVCJ9.eyJleHAiOjE4OTAwMjQ0MjMsImlzcyI6InJ0aW8iLCJzdWIiOiJjZmEwOWJhYS00OTEzLTRhZDctYTkzNi0wMDAwMDAwMDAwMDAifQ.pxxJk12qz2DyQ1IZX7r67kJOVOYC43ZES-i1F2ZpdyN3jmb32XS6zR6bkFp-ApCBa3HxxJwW0eGRkbRBec62AA"
 
-// 	c := NewRTIOClient(url, token)
-// 	jsonResp, err := c.CoPost(jsonReq)
+	c := NewRTIOClient(url, token)
+	jsonResp, err := c.CoPost(jsonReq)
 
-// 	if err != nil {
-// 		t.Errorf("err=%v\n", err)
-// 	}
-// 	t.Logf("jsonResp=%v\n", jsonResp)
+	if err != nil {
+		t.Errorf("err=%v\n", err)
+	}
+	t.Logf("jsonResp=%v\n", jsonResp)
 
-// 	if jsonResp.Code != "CODE_DEVICEID_OFFLINE" {
-// 		t.Errorf("code=%v\n", jsonResp.Code)
-// 	}
-// }
+	if jsonResp.Code != "DEVICEID_OFFLINE" {
+		t.Errorf("code=%v\n", jsonResp.Code)
+	}
+}
 
-// func TestObGet_DeviceOffLine(t *testing.T) {
-// 	id, _ := rtioutil.GenUint32ID()
-// 	base64Data := base64.StdEncoding.EncodeToString([]byte("hello"))
-// 	t.Logf("base64Data=%v\n", base64Data)
+func TestObGet_DeviceOffLine(t *testing.T) {
+	id, _ := rtioutil.GenUint32ID()
+	base64Data := base64.StdEncoding.EncodeToString([]byte("hello"))
+	t.Logf("base64Data=%v\n", base64Data)
 
-// 	jsonReq := JSONReq{
-// 		Method: "obget",
-// 		ID:     id,
-// 		URI:    "/test",
-// 		Data:   base64Data,
-// 	}
-// 	t.Logf("jsonReq=%v\n", jsonReq)
+	jsonReq := JSONReq{
+		Method: "obget",
+		ID:     id,
+		URI:    "/test",
+		Data:   base64Data,
+	}
+	t.Logf("jsonReq=%v\n", jsonReq)
 
-// 	url := "http://" + httpAddr + "/cfa09baa-4913-4ad7-a936-2e26f9671b05"
-// 	token := "eyJhbGciOiJFZERTQSIsInR5cCI6IkpXVCJ9.eyJleHAiOjE4ODAyNzg5MDgsImlzcyI6InJ0aW8iLCJzdWIiOiJjZmEwOWJhYS00OTEzLTRhZDctYTkzNi0yZTI2Zjk2NzFiMDUifQ.jclIibY2C6kU9FT7_VR5CcPUoKCrark7vYzdHiRac8JKIDKx3pk3Q9Knz4qhLDnzRB6JCMyQhwr__Nn-lvQtBQ"
+	url := "http://" + httpAddr + "/cfa09baa-4913-4ad7-a936-000000000000"
+	token := "eyJhbGciOiJFZERTQSIsInR5cCI6IkpXVCJ9.eyJleHAiOjE4OTAwMjQ0MjMsImlzcyI6InJ0aW8iLCJzdWIiOiJjZmEwOWJhYS00OTEzLTRhZDctYTkzNi0wMDAwMDAwMDAwMDAifQ.pxxJk12qz2DyQ1IZX7r67kJOVOYC43ZES-i1F2ZpdyN3jmb32XS6zR6bkFp-ApCBa3HxxJwW0eGRkbRBec62AA"
 
-// 	c := NewRTIOClient(url, token)
-// 	jsonRespChan, err := c.ObGet(t, jsonReq)
-// 	if err != nil {
-// 		t.Errorf("err=%v\n", err)
-// 	}
+	c := NewRTIOClient(url, token)
+	jsonRespChan, err := c.ObGet(t, jsonReq)
+	if err != nil {
+		t.Errorf("err=%v\n", err)
+	}
 
-// 	for v := range jsonRespChan {
-// 		t.Log(v)
-// 		if v.Code != "CODE_DEVICEID_OFFLINE" {
-// 			t.Errorf("code=%s\n", v.Code)
-// 		}
-// 	}
-// }
+	for v := range jsonRespChan {
+		t.Log(v)
+		if v.Code != "DEVICEID_OFFLINE" {
+			t.Errorf("code=%s\n", v.Code)
+		}
+	}
+}

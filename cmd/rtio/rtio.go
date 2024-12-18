@@ -26,6 +26,7 @@ import (
 	"os/signal"
 	"sync"
 	"syscall"
+	"text/template"
 
 	"github.com/mkrainbow/rtio/internal/devicehub/server/apprpc"
 	"github.com/mkrainbow/rtio/internal/devicehub/server/backendconn"
@@ -162,24 +163,21 @@ func printUsage() {
 	flag.PrintDefaults()
 }
 
-func printCompletionBash() {
-	var flagList string
-	flag.CommandLine.VisitAll(func(f *flag.Flag) {
-		flagList = flagList + "\"" + f.Name + "\" "
-	})
-	flagList = flagList + "\"h\" " + "\"help\""
+type CompleteBash struct {
+	Command string
+	Flags   string
+}
 
-	fmt.Print(`# Bash completion for rtio
-_rtio_complete() {
+const (
+	tmpBash string = `# Bash completion for {{.Command}}
+_{{.Command}}_complete() {
     local cur short_opts long_opts
     COMPREPLY=()
     cur="${COMP_WORDS[COMP_CWORD]}"
     prev="${COMP_WORDS[COMP_CWORD-1]}"
 
     # Define base flags
-    local flags=(`)
-	fmt.Print(flagList)
-	fmt.Print(`)
+    local flags=({{.Flags}})
 
     # Define flag-specific values
     declare -A flag_values
@@ -209,6 +207,27 @@ _rtio_complete() {
         return 0
     fi
 }
-complete -o default -F _rtio_complete rtio
-`)
+complete -o default -F _{{.Command}}_complete {{.Command}}
+`
+)
+
+func printCompletionBash() {
+	var flagList string
+	flag.CommandLine.VisitAll(func(f *flag.Flag) {
+		flagList = flagList + "\"" + f.Name + "\" "
+	})
+	flagList = flagList + "\"h\" " + "\"help\""
+
+	t, err := template.New("complete-bash").Parse(tmpBash)
+
+	if err != nil {
+		fmt.Println("parse template:", err)
+		return
+	}
+	rtioBash := &CompleteBash{Command: "rtio", Flags: flagList}
+
+	err = t.Execute(os.Stdout, rtioBash)
+	if err != nil {
+		fmt.Println("executing template:", err)
+	}
 }

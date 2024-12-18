@@ -161,17 +161,17 @@ func getBinaryData(req *RTIOReq) ([]byte, error) {
 func verifyRTIOReq(req *RTIOReq) error {
 
 	if req.Method != "copost" && req.Method != "obget" {
-		log.Error().Err(ErrHTTPJSONInvalidMethod).Str("method", req.Method).Msg("Failed to verify RTIOReq")
+		log.Warn().Err(ErrHTTPJSONInvalidMethod).Str("method", req.Method).Msg("Failed to verify RTIOReq")
 		return ErrHTTPJSONInvalidMethod
 	}
 	uriLen := len(req.URI)
 	if (uriLen < RTIODeviceURILenMin) || (uriLen > RTIODeviceURILenMax) {
-		log.Error().Err(ErrHTTPJSONInvalidURI).Int("urilen", uriLen).Msg("Failed to verify RTIOReq, uri length error")
+		log.Warn().Err(ErrHTTPJSONInvalidURI).Int("urilen", uriLen).Msg("Failed to verify RTIOReq, uri length error")
 		return ErrHTTPJSONInvalidURI
 	}
 	dataLen := len(req.Data)
 	if dataLen > RTIOHttpBase64DataLenMax {
-		log.Error().Err(ErrHTTPJSONInvalidData).Int("dataLen", dataLen).Msg("Failed to verify RTIOReq, base64 length error")
+		log.Warn().Err(ErrHTTPJSONInvalidData).Int("dataLen", dataLen).Msg("Failed to verify RTIOReq, base64 length error")
 		return ErrHTTPJSONInvalidData
 	}
 	return nil
@@ -189,12 +189,14 @@ func httpGetDeviceID(r *http.Request) (string, error) {
 
 func httpGetRTIOReq(r *http.Request) (*RTIOReq, error) {
 
-	// limitReader := io.LimitReader(r.Body, RTIOHttpBodyLenMax)
-	// bodyBuf, err := io.ReadAll(limitReader)
-
-	bodyBuf, err := io.ReadAll(r.Body)
-	log.Debug().Int("bodylen", len(bodyBuf)).Msg("Get RTIOReq from http.Request")
+	limitReader := io.LimitReader(r.Body, RTIOHttpBodyLenMax+1) // 1 more for bound
+	bodyBuf, err := io.ReadAll(limitReader)
 	if err != nil {
+		return nil, ErrHTTPBodyReadFailed
+	}
+	log.Debug().Int("bodylen", len(bodyBuf)).Msg("Get RTIOReq from http.Request")
+	if len(bodyBuf) > RTIOHttpBodyLenMax {
+		log.Warn().Int("bodylen", len(bodyBuf)).Msg("Get RTIOReq bodylen exceed limit")
 		return nil, ErrHTTPBodyReadFailed
 	}
 
@@ -394,12 +396,12 @@ func (s *rtioHTTPHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		subject, err := s.validateToken(r)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusUnauthorized)
-			log.Error().Err(err).Msg("handle rtio http reqest, Failed to verify token")
+			log.Warn().Err(err).Msg("handle rtio http reqest, Failed to verify token")
 			return
 		}
 		if subject != deviceID {
 			http.Error(w, "JWT subject invalid", http.StatusUnauthorized)
-			log.Error().Str("subject", subject).Str("deviceid", deviceID).Err(err).Msg("handle rtio http reqest, subject not match")
+			log.Warn().Str("subject", subject).Str("deviceid", deviceID).Err(err).Msg("handle rtio http reqest, subject not match")
 			return
 		}
 	}
@@ -407,7 +409,7 @@ func (s *rtioHTTPHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	rtioReq, err := httpGetRTIOReq(r)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
-		log.Error().Err(err).Msg("Failed to get RTIOReq")
+		log.Warn().Err(err).Msg("Failed to get RTIOReq")
 		return
 	}
 
@@ -423,7 +425,7 @@ func (s *rtioHTTPHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		} else if err == ErrHTTPJSONInvalidData || err == ErrHTTPJSONInvalidURI {
 			rtioResp.Code = RTIOCodeBadRequest
 		}
-		log.Error().Err(err).Msg("SFailed to verify rtioReq")
+		log.Warn().Err(err).Msg("Failed to verify RTIOReq")
 		httpWriteRTIOResp(w, rtioResp)
 		return
 	}

@@ -24,6 +24,7 @@ import (
 	"fmt"
 	"os"
 	"os/signal"
+	"path/filepath"
 	"sync"
 	"syscall"
 	"text/template"
@@ -164,8 +165,9 @@ func printUsage() {
 }
 
 type CompleteBash struct {
-	Command string
-	Flags   string
+	Command     string
+	CommandFull string
+	Flags       string
 }
 
 const (
@@ -208,6 +210,8 @@ _{{.Command}}_complete() {
     fi
 }
 complete -o default -F _{{.Command}}_complete {{.Command}}
+complete -o default -F _{{.Command}}_complete {{.CommandFull}}
+
 `
 )
 
@@ -224,7 +228,10 @@ func printCompletionBash() {
 		fmt.Println("parse template:", err)
 		return
 	}
-	rtioBash := &CompleteBash{Command: "rtio", Flags: flagList}
+	rtioBash := &CompleteBash{
+		Command:     filepath.Base(os.Args[0]),
+		CommandFull: os.Args[0],
+		Flags:       flagList}
 
 	err = t.Execute(os.Stdout, rtioBash)
 	if err != nil {

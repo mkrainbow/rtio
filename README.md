@@ -89,16 +89,16 @@ RTIO is a point-to-point communication model, making it better suited for remote
 
 | Feature                     | MQTT                    | RTIO                             |
 |:---------------------------|:-------------------------|:-----------------------------------|
-| Communication Model         | Publish-Subscribe Model   | Point-to-Point, REST-Like Model$^{1}$, supports Observing Mode$^{2}$ |
+| Communication Model         | Publish-Subscribe Model   | Point-to-Point, REST-Like Model¹, supports Observing Mode² |
 | Client SDK Integration      | Required                  | Not required, uses HTTP protocol    |
-| Remote Control Implementation Difficulty | High         | Low$^{3}$                       |
-| Lightweight and Efficient Protocol | Yes                 | Yes$^{4}$                        |
+| Remote Control Implementation Difficulty | High         | Low³                       |
+| Lightweight and Efficient Protocol | Yes                 | Yes⁴                       |
 | Bi-directional Communication | Yes                      | Yes                                 |
 | Millions of Connections     | Supported                 | Supported                           |
-| Reliable Message Delivery    | Supported                 | Supported$^{5}$                  |
-| Unreliable Network          | Supported                 | Supported$^{6}$                  |
+| Reliable Message Delivery    | Supported                 | Supported⁵                  |
+| Unreliable Network          | Supported                 | Supported⁶                 |
 | Secure Communication (TLS)  | Supported                 | Supported                           |
-| JWT Authentication | Not supported | Supported$^{7}$                          |  
+| JWT Authentication         | Not supported             | Supported⁷                           |  
 
 **Notes:**
 

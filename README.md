@@ -27,7 +27,7 @@ With just a few lines of key code, the "device capabilities" can be mapped to th
 
 ```text
                                                                  
-   Device:PRINTER-001              native │ could/edge                 
+   Device:PRINTER-001           Native │ Could or Edge                 
   ┌───────────────────────┐            │             ┌────────────┐ 
   │                       │            │             │            │ 
   │ /printer/action       │            │             │            │ 
@@ -174,23 +174,28 @@ world
 Below is the Golang implementation for the device side.
 
 ```go
+import (
+    "github.com/mkrainbow/rtio-device-sdk-go/rtio"
+)
+
 func main() {
-   // ...
 
-   // Connect to rtio service.
-   session, err := rtio.Connect(context.Background(), *deviceID, *deviceSecret, *serverAddr)
+    // Connect to rtio service.
+    session, err := rtio.Connect(context.Background(), *deviceID, *deviceSecret, *serverAddr)
 
-   // Register handler for URI.
-   session.RegisterPostHandler("/rainbow", func(req []byte) ([]byte, error) {
-      log.Printf("received [%s] and reply [world]", string(req))
-      return []byte("world"), nil
-   })
+    // ...
+    
+    // Register handler for URI.
+    session.RegisterCoPostHandler("/rainbow", func(req []byte) ([]byte, error) {
+        log.Printf("received [%s] and reply [world]", string(req))
+        return []byte("world"), nil
+    })
 
-   // Session serve in the background.
-   session.Serve(context.Background())
+    // Session serve in the background.
+    session.Serve(context.Background())
 
-   // Do other things.
-   time.Sleep(time.Hour * 8760)
+    // Do other things.
+    time.Sleep(time.Hour * 8760)
 }
 ```
 
@@ -198,11 +203,19 @@ func main() {
 
 ### 1.7.1. Golang
 
-RTIO already includes the necessary code for device-side development. A separate `rtio-device-sdk-go` is currently in development.
+RTIO device-side SDK, Golang version:  
+
+- rtio-device-sdk-go - <https://github.com/mkrainbow/rtio-device-sdk-go>
+
+Typically suitable for devices running full Linux, such as ARM32-bit or higher single-board computers.
 
 ### 1.7.2. C
 
-`rtio-device-sdk-c` is also under development.
+RTIO device-side SDK, C language version:  
+
+- rtio-device-sdk-c - <https://github.com/mkrainbow/rtio-device-sdk-c>
+
+Suitable for resource-constrained devices, such as those running on real-time operating systems like FreeRTOS.
 
 ## 1.8. More
 

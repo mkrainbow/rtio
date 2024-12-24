@@ -89,8 +89,8 @@ func virtalDeviceRun(ctx context.Context, wait *sync.WaitGroup, deviceID, device
 		return
 	}
 	session.RegisterObGetHandler("/test", obgetHandler)
-	session.RegisterPostHandler("/test", copostHandler)
-	session.RegisterPostHandler("/0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456", copost128Handler)
+	session.RegisterCoPostHandler("/test", copostHandler)
+	session.RegisterCoPostHandler("/0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456", copost128Handler)
 
 	session.Serve(ctx)
 

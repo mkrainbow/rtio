@@ -12,7 +12,7 @@
     - [1.6.1. 编译和运行](#161-编译和运行)
     - [1.6.2. 设备端代码](#162-设备端代码)
   - [1.7. 设备SDK](#17-设备sdk)
-    - [1.7.1. Glang](#171-glang)
+    - [1.7.1. Golang](#171-golang)
     - [1.7.2. C](#172-c)
   - [1.8. 更多](#18-更多)
 
@@ -26,7 +26,7 @@
 
 ```text
                                                                  
-   Device:PRINTER-001           native │ could/edge                 
+   Device:PRINTER-001           Native │ Could or Edge                 
   ┌───────────────────────┐            │             ┌────────────┐ 
   │                       │            │             │            │ 
   │ /printer/action       │            │             │            │ 
@@ -175,36 +175,49 @@ world
 下面是Golang设备端实现。
 
 ```go
+import (
+    "github.com/mkrainbow/rtio-device-sdk-go/rtio"
+)
+
 func main() {
-   // ...
 
-   // Connect to rtio service.
-   session, err := rtio.Connect(context.Background(), *deviceID, *deviceSecret, *serverAddr)
+    // Connect to rtio service.
+    session, err := rtio.Connect(context.Background(), *deviceID, *deviceSecret, *serverAddr)
 
-   // Register handler for URI.
-   session.RegisterPostHandler("/rainbow", func(req []byte) ([]byte, error) {
-      log.Printf("received [%s] and reply [world]", string(req))
-      return []byte("world"), nil
-   })
+    // ...
+    
+    // Register handler for URI.
+    session.RegisterCoPostHandler("/rainbow", func(req []byte) ([]byte, error) {
+        log.Printf("received [%s] and reply [world]", string(req))
+        return []byte("world"), nil
+    })
 
-   // Session serve in the background.
-   session.Serve(context.Background())
+    // Session serve in the background.
+    session.Serve(context.Background())
 
-   // Do other things.
-   time.Sleep(time.Hour * 8760)
+    // Do other things.
+    time.Sleep(time.Hour * 8760)
 }
 ```
 
 ## 1.7. 设备SDK
 
-### 1.7.1. Glang
+### 1.7.1. Golang
 
-RTIO已包含设备端开发所需代码。单独的`rtio-device-sdk-go`开发中。
+RTIO设备端SDK，Golang版:  
+
+- rtio-device-sdk-go - <https://github.com/mkrainbow/rtio-device-sdk-go>
+
+通常适合运行完整Linux的设备，比如ARM32位及以上单板。
 
 ### 1.7.2. C
 
-`rtio-device-sdk-c`开发中。
-  
+RTIO设备端SDK，C语言版:  
+
+- rtio-device-sdk-c - <https://github.com/mkrainbow/rtio-device-sdk-c>
+
+适合资源受限设备，比如运行在FreeRTOS等实时操作系统上。
+
 ## 1.8. 更多
 
 - [更多Demo](./docs/cn/rtio_demos.md)

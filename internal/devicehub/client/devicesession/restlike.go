@@ -29,12 +29,13 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
+// Error Code for the registration interface.
 var (
 	ErrAlreadyRegistered = errors.New("ErrAlreadyRegistered")
 )
 
-// not thread-safe
-func (s *DeviceSession) RegisterPostHandler(uri string, handler func(req []byte) ([]byte, error)) error {
+// RegisterCoPostHandler registers a handler for CoPOST requests to the specified URI.Not Thread-safe.
+func (s *DeviceSession) RegisterCoPostHandler(uri string, handler func(req []byte) ([]byte, error)) error {
 	d := rtioutil.URIHash(uri)
 	_, ok := s.regPostHandlerMap[d]
 	if ok {
@@ -44,7 +45,7 @@ func (s *DeviceSession) RegisterPostHandler(uri string, handler func(req []byte)
 	return nil
 }
 
-// not thread-safe
+// RegisterObGetHandler registers a handler for ObGET requests to the specified URI.Not Thread-safe.
 func (s *DeviceSession) RegisterObGetHandler(uri string, handler func(ctx context.Context, req []byte) (<-chan []byte, error)) error {
 	d := rtioutil.URIHash(uri)
 	_, ok := s.regObGetHandlerMap[d]
@@ -56,6 +57,7 @@ func (s *DeviceSession) RegisterObGetHandler(uri string, handler func(ctx contex
 	return nil
 }
 
+// Error Code for the REST-Like layer.
 var (
 	ErrInternel            = errors.New("ErrInternel")
 	ErrInternalServerError = errors.New("ErrInternalServerError")
@@ -93,6 +95,7 @@ func transToSDKError(code dp.StatusCode) error {
 	}
 }
 
+// CoPost Sends a CoPost request to the specified URI with the given payload and timeout.
 func (s *DeviceSession) CoPost(ctx context.Context, uri string, Req []byte, timeout time.Duration) ([]byte, error) {
 	headerID := s.genHeaderID()
 	d := rtioutil.URIHash(uri)

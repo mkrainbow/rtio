@@ -42,30 +42,31 @@ import (
 )
 
 func main() {
-	tcpAddr := flag.String("deviceaccess.addr", "0.0.0.0:17017", "address for device conntection")
-	httpAddr := flag.String("httpaccess.addr", "0.0.0.0:17917", "address for http conntection")
-	rpcAddr := flag.String("backend.rpc.addr", "0.0.0.0:17018", "(optional) address for app-server conntection")
+	tcpAddr := flag.String("deviceaccess.addr", "0.0.0.0:17017", "Address for device conntection.")
+	httpAddr := flag.String("httpaccess.addr", "0.0.0.0:17917", "Address for http conntection.")
+	rpcAddr := flag.String("backend.rpc.addr", "0.0.0.0:17018", "Address for app-server conntection (optional).")
 
-	logFormat := flag.String("log.format", "text", "text or json")
-	logLevel := flag.String("log.level", "warn", " debug, info, warn, error")
-	deviceVerifier := flag.String("backend.deviceverifier", "http://localhost:17217/deviceverifier", "device verifier service address, for device verifier")
-	hubConfiger := flag.String("backend.hubconfiger", "http://localhost:17317/hubconfiger", "service address for hub config")
+	logFormat := flag.String("log.format", "text", "Log format, text or json.")
+	logLevel := flag.String("log.level", "warn", "Log level, debug, info, warn, error.")
+	deviceVerifier := flag.String("backend.deviceverifier", "http://localhost:17217/deviceverifier", "Service address device verifier .")
+	hubConfiger := flag.String("backend.hubconfiger", "http://localhost:17317/hubconfiger", "Service address for hub config.")
 
-	disableDeviceVerify := flag.Bool("disable.deviceverify", false, "disable the backend device verify config service")
-	disableHubConfiger := flag.Bool("disable.hubconfiger", false, "disable the backend hub config service")
+	disableDeviceVerify := flag.Bool("disable.deviceverify", false, "Disable the backend device verify config service.")
+	disableHubConfiger := flag.Bool("disable.hubconfiger", false, "Disable the backend hub config service.")
 
-	enableHubTLS := flag.Bool("enable.hub.tls", false, "enable device hub TLS access")
-	hubCertFile := flag.String("hub.tls.certfile", "", "TLS cert file for device hub")
-	hubKeyFile := flag.String("hub.tls.keyfile", "", "TLS key file for device hub")
+	enableHubTLS := flag.Bool("enable.hub.tls", false, "Enable device hub TLS access.")
+	hubCertFile := flag.String("hub.tls.certfile", "", "TLS cert file for device hub.")
+	hubKeyFile := flag.String("hub.tls.keyfile", "", "TLS key file for device hub.")
 
-	enableHTTPS := flag.Bool("enable.https", false, "enable https gateway")
-	httpsCertFile := flag.String("https.certfile", "", "TLS cert file")
-	httpsKeyFile := flag.String("https.keyfile", "", "TLS key file")
+	enableHTTPS := flag.Bool("enable.https", false, "Enable https gateway.")
+	httpsCertFile := flag.String("https.certfile", "", "TLS cert file.")
+	httpsKeyFile := flag.String("https.keyfile", "", "TLS key file.")
 
-	enableJWT := flag.Bool("enable.jwt", false, "enable the JWT validation")
-	ed25519 := flag.String("jwt.ed25519", "", "the public key (pem) for JWT")
+	enableJWT := flag.Bool("enable.jwt", false, "Enable the JWT validation.")
+	ed25519 := flag.String("jwt.ed25519", "", "The public key (pem) for JWT.")
 
-	completionBash := flag.Bool("completion-bash", false, "print bash autocomplete script")
+	completionBash := flag.Bool("completion-bash", false, "Print bash autocomplete script.")
+	printVersion := flag.Bool("version", false, "Print version as JSON.")
 
 	flag.Usage = printUsage
 	flag.Parse()
@@ -73,6 +74,11 @@ func main() {
 	// handle completion-bash flag
 	if *completionBash {
 		printCompletionBash()
+		os.Exit(0)
+	}
+
+	if *printVersion {
+		printVersionJSON()
 		os.Exit(0)
 	}
 
@@ -164,6 +170,7 @@ func printUsage() {
 	flag.PrintDefaults()
 }
 
+// CompleteBash auto-complete script template
 type CompleteBash struct {
 	Command     string
 	CommandFull string
@@ -237,4 +244,16 @@ func printCompletionBash() {
 	if err != nil {
 		fmt.Println("executing template:", err)
 	}
+}
+
+// version infomation
+var (
+	BuildTime string
+	CommitID  string
+	GitTag    string
+)
+
+func printVersionJSON() {
+	fmt.Printf(`{"version":"%s", "commitid":"%s", "buildtime":"%s"}`, GitTag, CommitID, BuildTime)
+	fmt.Println("")
 }

@@ -50,7 +50,7 @@ func main() {
 		return
 	}
 
-	session.RegisterPostHandler("/rainbow", func(req []byte) ([]byte, error) {
+	session.RegisterCoPostHandler("/rainbow", func(req []byte) ([]byte, error) {
 		log.Printf("received [%s] and reply [world]", string(req))
 		return []byte("world"), nil
 

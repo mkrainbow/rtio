@@ -138,7 +138,7 @@ out/
 ├── rtio
 ```
 
-To run the RTIO server, you can check the help information using the `-h` parameter.
+Run the RTIO server, and you can view the help by using `./out/rtio -h`.
 
 ```sh
 $ ./out/rtio -disable.deviceverify -disable.hubconfiger -log.level=info

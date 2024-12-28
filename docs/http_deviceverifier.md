@@ -3,7 +3,6 @@
 > English | [简体中文](./cn/http_deviceverifier.md)  
 > The author's native language is Chinese. This document is translated using AI.
 
-
 ## Device Authentication Interface
 
 When RTIO enables device verification, requests can be sent to the authentication server to verify the legitimacy of a device. The communication uses HTTP with the POST method.

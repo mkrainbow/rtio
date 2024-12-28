@@ -2,7 +2,6 @@
 
 > 简体中文 | [English](../http_deviceverifier.md)
 
-
 ## 设备认证接口
 
 RTIO使能设备验证功能后，通过该接口向认证服务器发起请求，验证设备是否合法。使用HTTP通信，POST方法发送。

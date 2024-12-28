@@ -137,7 +137,7 @@ out/
 ├── rtio
 ```
 
-运行RTIO服务端，可通过`-h`参数查看帮助。
+运行RTIO服务端，可通过`./out/rtio -h`查看帮助。
 
 ```sh
 $ ./out/rtio -disable.deviceverify -disable.hubconfiger -log.level=info

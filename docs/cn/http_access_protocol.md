@@ -12,14 +12,14 @@ URL构成，HOST为RTIO服务主机地址，DEVICE_ID为设备标识。
 http://$HOST/$DEVICE_ID
 ```
 
-请求参数，编码为JSON字符串，目前版本限定字符串总长度为864$^{1}$字节。
+请求参数，编码为JSON字符串，目前版本限定字符串总长度为864¹字节。
 
 |参数 |类型   |长度|必选 | 描述|
 |:---|:------|:-------|:---|:-----|
 | method|string | 1-10  |是|请求设备的方法，仅支持copost和obget|
 | id |int |-   |是|请求标识，每个请求唯一，响应中该字段会与之匹配|
 | uri|string |3-128  |是|设备内部的uri，会绑定handler到该uri上|
-| data |base64 | 0-672$^{2}$ |否|为base64字符串|
+| data |base64 | 0-672$² |否|为base64字符串|
 
 响应参数，编码为JSON字符串。
 
@@ -28,7 +28,7 @@ http://$HOST/$DEVICE_ID
 | code|string | 0-64 |是|错误码|
 | id |int | - |是|应答标识，与请求中该字段匹配|
 | fid |int | - |否|obget方法必传，Frame标识，用于标识每个Frame|
-| data |base64 | 0-672$^{2}$|否|为base64字符串|
+| data |base64 | 0-672² |否|为base64字符串|
 
 备注：
 

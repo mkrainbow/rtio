@@ -3,9 +3,9 @@
 > English | [简体中文](./cn/http_hubconfiger.md)  
 > The author's native language is Chinese. This document is translated using AI.
 
-## Interface
+## Configuration Service Interface
 
-Uses HTTP communication with the POST method.
+Dynamically update the RTIO configuration (currently limited to updating the device service address). Uses HTTP communication with the POST method.
 
 ### URL
 

@@ -2,9 +2,9 @@
 
 > 简体中文 | [English](../http_hubconfiger.md)
 
-## 设备认证接口
+## 配置服务接口
 
-使用HTTP通信，POST方法发送。
+动态更新RTIO配置，目前仅限设备服务地址更新。使用HTTP通信，POST方法发送。
 
 URL示例：
 

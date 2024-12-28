@@ -15,14 +15,14 @@ http://$HOST/$DEVICE_ID
 
 ### Request Parameters
 
-The parameters are encoded as a JSON string, with a total length limit of 864$^{1}$ bytes.
+The parameters are encoded as a JSON string, with a total length limit of 864¹ bytes.
 
 | Parameter | Type   | Length | Required | Description |
 |:----------|:-------|:-------|:---------|:------------|
 | method    | string | 1-10   | Yes      | The method to request from the device, only supports `copost` and `obget` |
 | id        | int    | -      | Yes      | Request identifier, must be unique for each request; this field will match in the response |
 | uri       | string | 3-128  | Yes      | The internal URI of the device, which binds the handler to this URI |
-| data      | base64 | 0-672$^{2}$ | No       | A base64-encoded string |
+| data      | base64 | 0-672² | No       | A base64-encoded string |
 
 ### Response Parameters
 
@@ -33,7 +33,7 @@ The response is also encoded as a JSON string.
 | code      | string | 0-64   | Yes      | Error code |
 | id        | int    | -      | Yes      | Response identifier, matches the request |
 | fid       | int    | -      | No       | Required for `obget` method; frame identifier for each frame |
-| data      | base64 | 0-672$^{2}$ | No       | A base64-encoded string |
+| data      | base64 | 0-672² | No       | A base64-encoded string |
 
 **Notes:**
 

@@ -5,13 +5,14 @@
 
 ## Device Service Interface
 
-The interface uses HTTP communication with the POST method.
+The RTIO proxy service forwards IoT device requests to the device service. The interface uses HTTP communication with the POST method.
 
 ### URL
 
 ```text
 http://$HOST/deviceservice
 ```
+
 ### Request Parameters
 
 The parameters are encoded as a JSON string.

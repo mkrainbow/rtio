@@ -6,6 +6,7 @@ require (
 	github.com/armon/go-proxyproto v0.1.0
 	github.com/golang-jwt/jwt/v5 v5.2.1
 	github.com/google/gops v0.3.27
+	github.com/mkrainbow/rtio-device-sdk-go v0.8.0
 	github.com/rs/zerolog v1.28.0
 	google.golang.org/grpc v1.65.0
 	google.golang.org/protobuf v1.34.1

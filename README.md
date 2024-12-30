@@ -123,6 +123,7 @@ You need to have Golang (version 1.21 or above) and make tools installed.
 ```sh
 git clone https://github.com/mkrainbow/rtio.git
 cd rtio
+go get github.com/mkrainbow/rtio-device-sdk-go
 make
 ```
 

@@ -2,6 +2,8 @@ all: debug
 
 release:
 	mkdir -p out
+	go get github.com/mkrainbow/rtio-device-sdk-go
+
 	go build -ldflags="-s -w" -o ./out/ github.com/mkrainbow/rtio/cmd/...
 
 	@ mkdir -p out/examples
@@ -15,6 +17,8 @@ release:
 
 debug:
 	mkdir -p out
+	go get github.com/mkrainbow/rtio-device-sdk-go
+	
 	go build -gcflags="all=-N -l" -o ./out/ github.com/mkrainbow/rtio/cmd/...
 
 	@ mkdir -p out/examples

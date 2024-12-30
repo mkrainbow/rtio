@@ -122,7 +122,6 @@ RTIO为点对点通信模型，更适合比如手机控制设备等远程控制�
 ```sh
 git clone https://github.com/mkrainbow/rtio.git
 cd rtio
-go get github.com/mkrainbow/rtio-device-sdk-go
 make
 ```
 

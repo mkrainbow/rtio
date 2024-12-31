@@ -248,12 +248,12 @@ func printCompletionBash() {
 
 // version infomation
 var (
-	BuildTime string
-	CommitID  string
-	GitTag    string
+	Ver  string
+	ID   string
+	Time string
 )
 
 func printVersionJSON() {
-	fmt.Printf(`{"version":"%s", "commitid":"%s", "buildtime":"%s"}`, GitTag, CommitID, BuildTime)
+	fmt.Printf(`{"version":"%s", "id":"%s", "build_time":"%s"}`, Ver, ID, Time)
 	fmt.Println("")
 }

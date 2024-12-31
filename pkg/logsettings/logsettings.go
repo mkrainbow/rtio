@@ -25,28 +25,24 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-func isWithCaller() bool {
-	return false
-}
-
-// Set logFormat (text, json) and logLevel (debug, info, warn, error)
-func Set(logFormat, logLevel string) {
+// Set log Format (text, json) and log Level (debug, info, warn, error)
+func Set(format, level string) {
 
 	if isWithCaller() {
-		if logFormat != "json" {
+		if format != "json" {
 			log.Logger = zerolog.New(zerolog.ConsoleWriter{Out: os.Stderr, TimeFormat: "2006-01-02 15:04:05.000"}).With().Caller().Timestamp().Logger()
 		} else {
 			log.Logger = zerolog.New(os.Stderr).With().Caller().Timestamp().Logger()
 		}
 	} else {
-		if logFormat != "json" {
+		if format != "json" {
 			log.Logger = zerolog.New(zerolog.ConsoleWriter{Out: os.Stderr, TimeFormat: "2006-01-02 15:04:05.000"}).With().Timestamp().Logger()
 		} else {
 			log.Logger = zerolog.New(os.Stderr).With().Timestamp().Logger()
 		}
 	}
 
-	switch logLevel {
+	switch level {
 	case "debug":
 		zerolog.SetGlobalLevel(zerolog.DebugLevel)
 	case "info":
@@ -61,4 +57,8 @@ func Set(logFormat, logLevel string) {
 
 	zerolog.TimeFieldFormat = zerolog.TimeFormatUnixMs
 	// zerolog.DisableSampling(true)
+}
+
+func isWithCaller() bool {
+	return false
 }

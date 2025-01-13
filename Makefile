@@ -1,5 +1,5 @@
-ORG_ID  := 906b73c
-ORG_VER := v0.8.0
+ORG_ID  := 770408c
+ORG_VER := v0.8.1
 BUILD_TIME := $(shell date --iso-8601=seconds)
 
 GOFLAGS_RELEASE := -ldflags "-s -w -X 'main.Time=$(BUILD_TIME)' -X 'main.ID=$(ORG_ID)' -X 'main.Ver=$(ORG_VER)'"

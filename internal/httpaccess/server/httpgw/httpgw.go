@@ -390,7 +390,6 @@ func (s *rtioHTTPHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		log.Error().Err(err).Msg("Failed to get deviceID")
 		return
 	}
-	log.Info().Str("deviceID", deviceID).Msg("handle rtio http reqest")
 
 	if config.BoolKV.GetWithDefault("enable.jwt", false) {
 		subject, err := s.validateToken(r)
@@ -413,6 +412,7 @@ func (s *rtioHTTPHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	log.Info().Str("deviceID", deviceID).Uint32("id", rtioReq.ID).Msg("handle rtio http reqest")
 	rtioResp := &RTIOResp{
 		ID:   rtioReq.ID,
 		Code: RTIOCodeInternalServerError,

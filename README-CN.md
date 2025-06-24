@@ -18,6 +18,8 @@
 
 ---
 
+> RTIO REST-Like特性（比如立即返回设备执行结果），使LLM通过MCP（Model Context Protocol）远程控制设备极为简单。博文[《大模型远程控制LED》](https://mkrainbow.com/zh/blog/esp32_mcp_led/)演示使用LLM Chat工具远程控制LED。
+
 ## 1.1. 目标
 
 通过几行关键代码，即可将“设备能力”以URI形式映射到云端或边缘端，可直接使用HTTP对设备访问、控制。
@@ -224,3 +226,4 @@ RTIO设备端SDK，C语言版:
 - [设备接入协议](./docs/cn/device_access_protocol.md)
 - [HTTP API](./docs/cn/http_access_protocol.md)
 - [FAQ](./docs/cn/rtio_faq.md)
+- [博客-大模型远程控制LED](https://mkrainbow.com/zh/blog/esp32_mcp_led/)

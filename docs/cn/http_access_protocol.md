@@ -17,17 +17,17 @@ http://$HOST/$DEVICE_ID
 |参数 |类型   |长度|必选 | 描述|
 |:---|:------|:-------|:---|:-----|
 | method|string | 1-10  |是|请求设备的方法，仅支持copost和obget|
-| id |int |-   |是|请求标识，每个请求唯一，响应中该字段会与之匹配|
+| id |uint32 |-   |是|请求标识，每个请求唯一，响应中该字段会与之匹配|
 | uri|string |3-128  |是|设备内部的uri，会绑定handler到该uri上|
-| data |base64 | 0-672$² |否|为base64字符串|
+| data |base64 | 0-672² |否|为base64字符串|
 
 响应参数，编码为JSON字符串。
 
 |参数 |类型   |长度|必选 | 描述|
 |:---|:------|:-------|:---|:-----|
 | code|string | 0-64 |是|错误码|
-| id |int | - |是|应答标识，与请求中该字段匹配|
-| fid |int | - |否|obget方法必传，Frame标识，用于标识每个Frame|
+| id |uint32 | - |是|应答标识，与请求中该字段匹配|
+| fid |uint32 | - |否|obget方法必传，Frame标识，用于标识每个Frame|
 | data |base64 | 0-672² |否|为base64字符串|
 
 备注：
@@ -48,7 +48,7 @@ $ curl https://localhost:17917/cfa09baa-4913-4ad7-a936-3e26f9671b10 -d '{"method
 通过`copost`方法请求设备（设备离线）：
 
 ```sh
-$ curl http://localhost:17917/cfa09baa-4913-4ad7-a936-3e26f9671b09 -d '{"method":"copost", "uri":"/greeter","id":12667,"data":"aGVsbG8="}'
+$ curl https://localhost:17917/cfa09baa-4913-4ad7-a936-3e26f9671b09 -d '{"method":"copost", "uri":"/greeter","id":12667,"data":"aGVsbG8="}'
 {"id":12667,"fid":0,"code":"DEVICEID_OFFLINE","data":""}
 ```
 

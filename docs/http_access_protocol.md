@@ -20,7 +20,7 @@ The parameters are encoded as a JSON string, with a total length limit of 864¹ 
 | Parameter | Type   | Length | Required | Description |
 |:----------|:-------|:-------|:---------|:------------|
 | method    | string | 1-10   | Yes      | The method to request from the device, only supports `copost` and `obget` |
-| id        | int    | -      | Yes      | Request identifier, must be unique for each request; this field will match in the response |
+| id        | uint32 | -      | Yes      | Request identifier, must be unique for each request; this field will match in the response |
 | uri       | string | 3-128  | Yes      | The internal URI of the device, which binds the handler to this URI |
 | data      | base64 | 0-672² | No       | A base64-encoded string |
 
@@ -31,8 +31,8 @@ The response is also encoded as a JSON string.
 | Parameter | Type   | Length | Required | Description |
 |:----------|:-------|:-------|:---------|:------------|
 | code      | string | 0-64   | Yes      | Error code |
-| id        | int    | -      | Yes      | Response identifier, matches the request |
-| fid       | int    | -      | No       | Required for `obget` method; frame identifier for each frame |
+| id        | uint32 | -      | Yes      | Response identifier, matches the request |
+| fid       | uint32 | -      | No       | Required for `obget` method; frame identifier for each frame |
 | data      | base64 | 0-672² | No       | A base64-encoded string |
 
 **Notes:**
@@ -55,7 +55,7 @@ $ curl https://localhost:17917/cfa09baa-4913-4ad7-a936-3e26f9671b10 -d '{"method
 **Device Offline:**
 
 ```sh
-$ curl http://localhost:17917/cfa09baa-4913-4ad7-a936-3e26f9671b09 -d '{"method":"copost", "uri":"/greeter","id":12667,"data":"aGVsbG8="}'
+$ curl https://localhost:17917/cfa09baa-4913-4ad7-a936-3e26f9671b09 -d '{"method":"copost", "uri":"/greeter","id":12667,"data":"aGVsbG8="}'
 {"id":12667,"fid":0,"code":"DEVICEID_OFFLINE","data":""}
 ```
 

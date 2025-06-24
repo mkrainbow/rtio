@@ -19,6 +19,8 @@
 
 ---
 
+> RTIO has REST-like features (such as immediate return of device call results), making it extremely simple for LLM to remotely control devices through MCP (Model Context Protocol). The blog [LLM-Based Remote LED Control](https://mkrainbow.com/blog/esp32_mcp_led/) demonstrates remote control of an LED via the MCP protocol.  
+
 ## 1.1. Goals
 
 With just a few lines of key code, the "device capabilities" can be mapped to the cloud or edge as a URI, allowing direct access and control of the device via HTTP.
@@ -223,3 +225,4 @@ Suitable for resource-constrained devices, such as those running on real-time op
 - [Device Access Protocol](./docs/device_access_protocol.md)
 - [HTTP API](./docs/http_access_protocol.md)
 - [FQA](./docs/rtio_faq.md)
+- [LLM-Based Remote LED Control](https://mkrainbow.com/blog/esp32_mcp_led/)
